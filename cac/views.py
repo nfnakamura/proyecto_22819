@@ -5,19 +5,12 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.http import HttpResponse, JsonResponse
+from cac.forms import ContactoForm
+from django.contrib import messages
 
 # Create your views here.
 def index(request):
-    if(request.method=='GET'):
-        titulo= 'Titulo cuando se accede por GET'
-    else:
-        titulo= f'Titulo cuando accedo por otro metodo {request.method}'
-    parameters_get= request.GET.get('otro')
-    
-   # return HttpResponse(f"""
-   #     <h1>{titulo}</h1>
-   #     <p>{parameters_get}</p>
-   # """)
+ 
     listado_cursos = [
         {
             'nombre':'Fullstack Java',
@@ -35,11 +28,23 @@ def index(request):
             'categoria':'Analisis de Datos'
         },
     ]
+    
+    if(request.method == 'POST'):
+        contacto_form = ContactoForm(request.POST)
+       
+        if(contacto_form.is_valid()):
+            #debería validar y realizar alguna acción
+            messages.success(request, 'Muchas gracias por contactarete, te estaremos respondiendo en breve')
+            contacto_form=ContactoForm() #instancio para que me limpie el form una vez enviado
+        else:
+            messages.error(request, 'Por favor revisa los errores')
+    else:
+        contacto_form = ContactoForm()
+
     return render(request,'cac/publica/index.html',{
-                                        'titulo_nombre':titulo,
                                         'cursos':listado_cursos,
-                                        'parametro':parameters_get,
-                                        'hoy':datetime.now})
+                                        'contacto_form':contacto_form,
+                                        })
    #opcion 1 para renderizar
 
 def quienes_somos(request):
